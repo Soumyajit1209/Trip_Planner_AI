@@ -1,9 +1,11 @@
-import { selectBudgetOptions } from '@/constants/options';
+import { AI_PROMPT, selectBudgetOptions } from '@/constants/options';
 import { selectTravelarList } from '@/constants/options';
 import { Button } from '@/components/ui/button';
 // eslint-disable-next-line no-unused-vars
 import React, {useEffect, useState} from 'react'
 import GooglePlacesAutocomplete from 'react-google-places-autocomplete'
+import { toast } from "sonner"
+import { chatSession } from '@/service/AIModal';
 
 
 const CreateTrip = () => {
@@ -23,10 +25,26 @@ const CreateTrip = () => {
   console.log(formData);
  },[formData])
 
- const OnGenerateTrip = ()=>{
-  if(formData?.noOfDays > 5){
+ const OnGenerateTrip = async()=>{
+  if(formData?.noOfDays > 5 && !formData?.location || !formData?.budget || !formData?.traveler){
+    toast("Please fill all details")
+
     return;
   }
+  const FINAL_PROMPT = AI_PROMPT
+  .replace('{location}', formData?.location?.label)
+  .replace('{totalDays}', formData?.noOfDays)
+  .replace('{traveler}', formData?.traveler)
+  .replace('{budget}', formData?.budget)
+  .replace('{totalDays}', formData?.noOfDays)
+
+  console.log(FINAL_PROMPT)
+
+  const result = await chatSession.sendMessage(FINAL_PROMPT);
+
+  console.log(result?.response?.text)
+  
+
  }
   
   return (
